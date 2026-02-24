@@ -3,10 +3,10 @@ import {
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
-  BeforeInsert,
 } from 'typeorm';
 import { Task } from '../../tasks/entities/task.entity';
-import * as bcrypt from 'bcryptjs';
+
+
 
 @Entity()
 export class User {
@@ -19,14 +19,24 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({default: false})
+  isEmailVerified: boolean;
+
   @Column()
   password: string;
 
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
 
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
+  /*
+  Entities should be "dumb"
+  Business logic (hashing) belongs in services
+  Makes testing easier
+  Makes password updates safer
+  */
+ 
+  // @BeforeInsert()
+  // async hashPassword() {
+  //   this.password = await bcrypt.hash(this.password, 10);
+  // }
 }
