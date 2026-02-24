@@ -8,6 +8,6 @@ export class CreateTaskDto {
   @IsString()
   description?: string;
 
-  @IsInt()
-  userId: number;
+//   @IsInt()
+//   userId: number;
 }
