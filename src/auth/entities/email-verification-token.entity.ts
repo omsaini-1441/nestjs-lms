@@ -9,7 +9,7 @@ export class EmailVerificationToken {
   @Column({ unique: true })
   token: string;
 
-  @Column()
+  @Column({ type: 'timestamptz' })
   expiresAt: Date;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

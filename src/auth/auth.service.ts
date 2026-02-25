@@ -94,7 +94,40 @@ export class AuthService {
     };
   }
 
-  
+
+  //~ RESEND EMAIL VERIFICATION
+async resendVerification(email: string) {
+  const user = await this.usersService.findOneByEmail(email);
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  if (user.isEmailVerified) {
+    throw new BadRequestException('Email already verified');
+  }
+
+  //? delete existing tokens for this user
+  await this.tokenRepo.delete({ user: { id: user.id } });
+
+  //? generate new token
+  const token = randomBytes(32).toString('hex');
+
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 1);
+
+  const verificationToken = this.tokenRepo.create({
+    token,
+    expiresAt,
+    user,
+  });
+
+  await this.tokenRepo.save(verificationToken);
+
+  // TODO: send email again
+
+  return { message: 'Verification email resent successfully' };
+}
 
   //~ LOGIN USER
   async login(loginDto: LoginDto) {
