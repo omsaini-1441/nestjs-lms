@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
@@ -27,12 +31,13 @@ export class UsersService {
       email: data.email,
       password: hashedpassword,
       isEmailVerified: false,
-      role: UserRole.USER
+      role: UserRole.USER,
     });
 
     return this.userRepo.save(user);
   }
 
+  //~ FIND ALL
   findAll(): Promise<User[]> {
     return this.userRepo.find({
       relations: ['tasks'], // include tasks
@@ -61,6 +66,41 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
+  //~ UPDATE USER-ROLE (SUPER-ADMIN)
+  async updateUserRole(
+    targetuserId: number,
+    newRole: UserRole,
+    requesterId: number,
+    requesterRole: UserRole,
+  ): Promise<User> {
+    //? only super admin can change roles
+    if (requesterRole !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException(
+        'Forbidden! Only Super-admin can change roles.',
+      );
+    }
+
+    //? prevent promotion to super-admin
+    if (newRole === UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Cannot assign Super-admin role');
+    }
+
+    const targetUser = await this.findOne(targetuserId);
+
+    //? prevent changing own role for super-admin
+    if (targetUser.id === requesterId) {
+      throw new ForbiddenException('Super-admin cannot change own role');
+    }
+
+    //? prevent modifying existing super-admin
+    if (targetUser.role === UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Super-admin role cannot be modified');
+    }
+
+    targetUser.role = newRole;
+    return this.userRepo.save(targetUser);
+  }
+
   //~ MARK EMAIL VERIFIED
   async markEmailVerified(userId: number) {
     return this.userRepo.update(userId, {
@@ -71,6 +111,11 @@ export class UsersService {
   //~ REMOVE USER
   async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
+
+    if (user.role === UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('SUPER_ADMIN cannot be deleted');
+    }
+
     await this.userRepo.remove(user);
   }
 

@@ -25,6 +25,16 @@ export class TasksService {
     return [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(role);
   }
 
+  private hasAtLeast(role: UserRole, required: UserRole): boolean {
+  const hierarchy = {
+    [UserRole.USER]: 1,
+    [UserRole.ADMIN]: 2,
+    [UserRole.SUPER_ADMIN]: 3,
+  };
+
+  return hierarchy[role] >= hierarchy[required];
+}
+
   //~ CREATE (any authenticated user can create their own task)
   async create(
     dto: CreateTaskDto,
