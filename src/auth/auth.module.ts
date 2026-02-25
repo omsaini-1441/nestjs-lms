@@ -6,9 +6,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { EmailVerificationToken } from './entities/email-verification-token.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([EmailVerificationToken]),
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -24,3 +27,5 @@ import { JwtStrategy } from './jwt.strategy';
   controllers: [AuthController],
 })
 export class AuthModule {}
+
+

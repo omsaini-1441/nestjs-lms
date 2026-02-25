@@ -19,7 +19,7 @@ export class TasksService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  // ✅ CREATE (secure)
+  //~ CREATE (secure)
   async create(dto: CreateTaskDto, userId: number): Promise<Task> {
     const user = await this.userRepo.findOneBy({ id: userId });
 
@@ -36,7 +36,7 @@ export class TasksService {
     return this.taskRepo.save(task);
   }
 
-  // ✅ READ ALL (only tasks of logged-in user)
+  //~ READ ALL (only tasks of logged-in user)
   async findAllByUser(userId: number): Promise<Task[]> {
     return this.taskRepo.find({
       where: { user: { id: userId } },
@@ -45,7 +45,7 @@ export class TasksService {
     });
   }
 
-  // ✅ READ ONE (must belong to logged-in user)
+  //~ READ ONE (must belong to logged-in user)
   async findOneByUser(id: number, userId: number): Promise<Task> {
     const task = await this.taskRepo.findOne({
       where: { id, user: { id: userId } },
@@ -59,7 +59,7 @@ export class TasksService {
     return task;
   }
 
-  // ✅ UPDATE (only if task belongs to logged-in user)
+  //~ UPDATE (only if task belongs to logged-in user)
   async update(
     id: number,
     dto: UpdateTaskDto,
@@ -71,9 +71,12 @@ export class TasksService {
     return this.taskRepo.save(task);
   }
 
-  // ✅ DELETE (only if task belongs to logged-in user)
-  async remove(id: number, userId: number): Promise<void> {
+  //~ DELETE (only if task belongs to logged-in user)
+  async remove(id: number, userId: number): Promise<object> {
     const task = await this.findOneByUser(id, userId);
     await this.taskRepo.remove(task);
+    return {
+      message: `task: "${task.description}" deleted successfully`
+    }
   }
 }
