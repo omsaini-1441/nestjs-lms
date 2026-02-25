@@ -6,24 +6,35 @@ import {
 } from 'typeorm';
 import { Task } from '../../tasks/entities/task.entity';
 
-
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  SUPER_ADMIN = "SUPER_ADMIN"
+}
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true})
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({default: false})
+  @Column({ default: false })
   isEmailVerified: boolean;
 
   @Column()
   password: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: string;
 
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
@@ -34,7 +45,7 @@ export class User {
   Makes testing easier
   Makes password updates safer
   */
- 
+
   // @BeforeInsert()
   // async hashPassword() {
   //   this.password = await bcrypt.hash(this.password, 10);

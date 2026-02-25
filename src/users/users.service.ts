@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
@@ -27,6 +27,7 @@ export class UsersService {
       email: data.email,
       password: hashedpassword,
       isEmailVerified: false,
+      role: UserRole.USER
     });
 
     return this.userRepo.save(user);

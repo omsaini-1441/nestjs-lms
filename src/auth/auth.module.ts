@@ -8,6 +8,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { EmailVerificationToken } from './entities/email-verification-token.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -23,7 +25,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard
+    }
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -108,19 +108,22 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.generateToken(user.id);
-    return { user: { id: user.id, username: user.username }, token };
+    const token = this.generateToken(user.id, user.role);
+    return {
+      user: { id: user.id, username: user.username, userrole: user.role },
+      token,
+    };
   }
 
   //~ GENERATE JWT TOKEN
-  private generateToken(userId: number) {
-    return this.jwtService.sign({ sub: userId });
+  private generateToken(userId: number, userRole: string) {
+    return this.jwtService.sign({ sub: userId, role: userRole });
   }
 
   //~ LOGOUT USER
   logout() {
     //  you can implement token blacklisting on the server side if needed.
-    
+
     return { message: 'Logged out successfully' };
   }
 }
